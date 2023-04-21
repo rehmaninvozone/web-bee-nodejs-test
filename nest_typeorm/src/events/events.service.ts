@@ -1,7 +1,8 @@
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { Get, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
+import { format } from 'date-fns';
 
 @Injectable()
 export class EventsService {
@@ -171,6 +172,14 @@ export class EventsService {
      */
   @Get('futureevents')
   async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
+    const date = format(new Date(), 'y-M-d');
+    return await this.eventRepository.find({
+      relations: ['workshops'],
+      where: {
+        workshops: {
+          start: MoreThan(date),
+        },
+      },
+    });
   }
 }
