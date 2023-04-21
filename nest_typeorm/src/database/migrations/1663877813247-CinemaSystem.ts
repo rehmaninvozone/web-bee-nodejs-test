@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class CinemaSystem1663877813247 implements MigrationInterface {
   /**
@@ -31,8 +31,109 @@ export class CinemaSystem1663877813247 implements MigrationInterface {
    * As a cinema owner I dont want to configure the seating for every show
    */
   public async up(queryRunner: QueryRunner): Promise<void> {
-    throw new Error('TODO: implement migration in task 4');
+    // create movie table
+    await queryRunner.createTable(
+      new Table({
+        name: 'movies',
+        columns: [
+          {
+            name: 'id',
+            type: 'integer',
+            isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'increment',
+          },
+          { name: 'title', type: 'varchar' },
+          { name: 'description', type: 'text' },
+          { name: 'duration', type: 'integer' },
+          { name: 'posterUrl', type: 'text' },
+        ],
+      }),
+    );
+
+    // create show table
+    await queryRunner.createTable(
+      new Table({
+        name: 'shows',
+        columns: [
+          {
+            name: 'id',
+            type: 'integer',
+            isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'increment',
+          },
+          { name: 'movieId', type: 'integer' },
+          { name: 'roomId', type: 'integer' },
+          { name: 'startTime', type: 'timestamp' },
+          { name: 'endTime', type: 'timestamp' },
+        ],
+      }),
+    );
+
+    // create room table
+    await queryRunner.createTable(
+      new Table({
+        name: 'rooms',
+        columns: [
+          {
+            name: 'id',
+            type: 'integer',
+            isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'increment',
+          },
+          { name: 'name', type: 'varchar' },
+          { name: 'capacity', type: 'integer' },
+          { name: 'premiumPricePercent', type: 'integer' },
+        ],
+      }),
+    );
+
+    // create seat type table
+    await queryRunner.createTable(
+      new Table({
+        name: 'seat_types',
+        columns: [
+          {
+            name: 'id',
+            type: 'integer',
+            isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'increment',
+          },
+          { name: 'name', type: 'varchar' },
+          { name: 'pricePercent', type: 'integer' },
+        ],
+      }),
+    );
+
+    // create show seat table
+    await queryRunner.createTable(
+      new Table({
+        name: 'show_seats',
+        columns: [
+          {
+            name: 'id',
+            type: 'integer',
+            isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'increment',
+          },
+          { name: 'showId', type: 'integer' },
+          { name: 'seatTypeId', type: 'integer' },
+          { name: 'rowNumber', type: 'integer' },
+          { name: 'seatNumber', type: 'integer' },
+        ],
+      }),
+    );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropTable('show_seats');
+    await queryRunner.dropTable('seat_types');
+    await queryRunner.dropTable('rooms');
+    await queryRunner.dropTable('shows');
+    await queryRunner.dropTable('movies');
+  }
 }
